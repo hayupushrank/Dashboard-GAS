@@ -1,0 +1,74 @@
+<script>
+  /**
+   * js-utils.html - Client-Side Helper Methods
+   * This object serves as a toolkit for frontend browser operations, 
+   * helping manage the loading screen spinner, number formatting, and event timing.
+   */
+  const Utils = {
+    
+    /**
+     * Displays the loading overlay on the screen and resets the progress bar to 0%.
+     * Called right before fetching data from the server.
+     */
+    showLoader() {
+      // Find the loader container element in the HTML and make it visible using flexbox
+      document.getElementById('loader').style.display = 'flex';
+      // Reset the progress bar back to start
+      this.updateProgress(0);
+    },
+    
+    /**
+     * Hides the loading overlay after ensuring the progress bar reaches 100%.
+     * A tiny timeout (200ms) is added so users can briefly see the "100%" completion state.
+     */
+    hideLoader() {
+      // Force progress to 100% completion
+      this.updateProgress(100);
+      
+      // Wait 200 milliseconds before hiding the element completely
+      setTimeout(() => {
+        document.getElementById('loader').style.display = 'none';
+      }, 200);
+    },
+    
+    /**
+     * Updates the visual width of the progress bar and its text percentage.
+     * Math.min and Math.max ensure the percentage stays safely between 0% and 100%.
+     */
+    updateProgress(percent) {
+      // Clamp the value so it never goes below 0 or above 100
+      const p = Math.min(100, Math.max(0, percent));
+      
+      // Adjust the CSS width property of the progress bar element
+      document.getElementById('progress-bar').style.width = p + '%';
+      
+      // Update the text label inside the UI (e.g., "75%")
+      document.getElementById('progress-text').textContent = p + '%';
+    },
+    
+    /**
+     * Formats raw numbers with clean local thousand separators (e.g., 1000 becomes "1,000").
+     * Defaults to 0 if the input is null or undefined.
+     */
+    formatNumber(num) {
+      // Uses the built-in browser JavaScript Intl API to format numbers cleanly based on region
+      return new Intl.NumberFormat().format(num || 0);
+    },
+    
+    /**
+     * Debounce function: Delays executing a function until a certain amount of time 
+     * has passed since the last time it was triggered. 
+     * Perfect for search inputs or window resize events to prevent lagging the browser.
+     */
+    debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        // Clear the previous timer every time a new event happens
+        clearTimeout(timeout);
+        
+        // Set a new timer; if the user stops typing for 'wait' milliseconds, run the function
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+  };
+</script>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Warehouse Operations Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', 'sans-serif'],
+            }
+          }
+        }
+      }
+  </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body
+  class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans antialiased min-h-screen relative pb-28 transition-colors duration-300">
+
+  <!-- Loader -->
+  <div id="loader"
+    class="fixed inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-center transition-opacity duration-300">
+    <div class="relative flex items-center justify-center">
+      <div class="w-14 h-14 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+      <div class="absolute text-[10px] font-black text-indigo-400">WMS</div>
+    </div>
+    <div class="w-72 bg-slate-900 rounded-full h-2 mt-5 p-0.5 border border-slate-800 overflow-hidden shadow-inner">
+      <div id="progress-bar"
+        class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-full w-0 rounded-full transition-all duration-300 ease-out">
+      </div>
+    </div>
+    <div class="flex items-center gap-2 mt-3">
+      <span class="text-xs font-medium text-slate-400" data-i18n="loadingText">Loading Warehouse Metrics...</span>
+      <span id="progress-text" class="text-xs font-bold text-indigo-400">0%</span>
+    </div>
+  </div>
+
+  <!-- Main Content Canvas -->
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+    <?!= include('header'); ?>
+
+    <!-- VIEW 1: DASHBOARD OVERVIEW -->
+    <div id="view-dashboard" class="space-y-6">
+      <!-- Filter Controls Bar -->
+      <div
+        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-4 rounded-2xl shadow-md dark:shadow-xl flex flex-col sm:flex-row gap-4 items-center justify-between transition-colors">
+        <div class="grid grid-cols-1 sm:flex sm:flex-wrap gap-4 items-center w-full">
+          <div class="flex flex-col gap-1 w-full sm:w-auto">
+            <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider" data-i18n="startDate">Start Date</label>
+            <input type="date" id="start-date" class="w-full px-3.5 py-2 bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div class="flex flex-col gap-1 w-full sm:w-auto">
+            <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider" data-i18n="endDate">End Date</label>
+            <input type="date" id="end-date" class="w-full px-3.5 py-2 bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div class="flex flex-col gap-1 w-full sm:w-auto">
+            <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider" data-i18n="locationFilter">Location Filter</label>
+            <select id="location-filter" class="w-full px-3.5 py-2 bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+                <option value="ALL" data-i18n="allLocations">All Storage Locations</option>
+              </select>
+          </div>
+        </div>
+      </div>
+
+      <?!= include('kpi-cards'); ?>
+      <?!= include('charts-section'); ?>
+      <?!= include('tables-section'); ?>
+    </div>
+
+    <!-- VIEW 2: INBOUND (Under Construction Placeholder) -->
+    <div id="view-inbound"
+      class="hidden flex flex-col items-center justify-center py-24 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl text-center">
+      <div class="p-4 bg-indigo-500/10 text-indigo-500 rounded-2xl mb-4">
+        <svg class="w-10 h-10 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Inbound Operations Module</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">This detailed management section is currently
+        under construction and will be available soon.</p>
+    </div>
+
+    <!-- VIEW 3: OUTBOUND (Under Construction Placeholder) -->
+    <div id="view-outbound"
+      class="hidden flex flex-col items-center justify-center py-24 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl text-center">
+      <div class="p-4 bg-amber-500/10 text-amber-500 rounded-2xl mb-4">
+        <svg class="w-10 h-10 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Outbound Shipping Module</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">This detailed management section is currently
+        under construction and will be available soon.</p>
+    </div>
+
+    <!-- VIEW 4: REQUESTS (Under Construction Placeholder) -->
+    <div id="view-requests"
+      class="hidden flex flex-col items-center justify-center py-24 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl text-center">
+      <div class="p-4 bg-purple-500/10 text-purple-500 rounded-2xl mb-4">
+        <svg class="w-10 h-10 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Material Requests Module</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">This detailed management section is currently
+        under construction and will be available soon.</p>
+    </div>
+  </main>
+
+  <!-- Android-Style Floating Bottom Navigation Menu -->
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-md">
+    <nav
+      class="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800/90 shadow-2xl rounded-3xl p-2 flex items-center justify-around backdrop-blur-lg transition-colors">
+
+      <button onclick="App.switchTab('dashboard', this)" class="nav-btn group active flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all duration-200 cursor-pointer">
+          <div class="p-1.5 rounded-xl group-[.active]:bg-indigo-600/20 group-[.active]:text-indigo-600 dark:group-[.active]:text-indigo-400 text-slate-400 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          </div>
+          <span class="text-[10px] font-bold group-[.active]:text-indigo-600 dark:group-[.active]:text-indigo-400 text-slate-500 dark:text-slate-400" data-i18n="navOverview">Overview</span>
+        </button>
+
+      <button onclick="App.switchTab('inbound', this)" class="nav-btn group flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all duration-200 cursor-pointer">
+          <div class="p-1.5 rounded-xl group-[.active]:bg-indigo-600/20 group-[.active]:text-indigo-600 dark:group-[.active]:text-indigo-400 text-slate-400 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+          </div>
+          <span class="text-[10px] font-bold group-[.active]:text-indigo-600 dark:group-[.active]:text-indigo-400 text-slate-500 dark:text-slate-400" data-i18n="navInbound">Inbound</span>
+        </button>
+
+      <button onclick="App.switchTab('outbound', this)" class="nav-btn group flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all duration-200 cursor-pointer">
+          <div class="p-1.5 rounded-xl group-[.active]:bg-indigo-600/20 group-[.active]:text-indigo-600 dark:group-[.active]:text-indigo-400 text-slate-400 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </div>
+          <span class="text-[10px] font-bold group-[.active]:text-indigo-600 dark:group-[.active]:text-indigo-400 text-slate-500 dark:text-slate-400" data-i18n="navOutbound">Outbound</span>
+        </button>
+
+      <button onclick="App.switchTab('requests', this)" class="nav-btn group flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all duration-200 cursor-pointer">
+          <div class="p-1.5 rounded-xl group-[.active]:bg-indigo-600/20 group-[.active]:text-indigo-600 dark:group-[.active]:text-indigo-400 text-slate-400 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <span class="text-[10px] font-bold group-[.active]:text-indigo-600 dark:group-[.active]:text-indigo-400 text-slate-500 dark:text-slate-400" data-i18n="navRequests">Requests</span>
+        </button>
+
+    </nav>
+  </div>
+
+  <?!= include('js-i18n'); ?>
+  <?!= include('js-utils'); ?>
+  <?!= include('js-api'); ?>
+  <?!= include('js-filters'); ?>
+  <?!= include('js-charts'); ?>
+  <?!= include('js-tables'); ?>
+  <?!= include('js-app'); ?>
+
+  <!-- Footer Section -->
+  <footer
+    class="max-w-7xl mx-auto px-4 pb-24 pt-4 text-center text-xs text-slate-400 dark:text-slate-600 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-slate-200 dark:border-slate-900">
+    <p>© 2026 NexusWMS Analytics Engine. All rights reserved.</p>
+    <p>System Build: <span id="footer-version-text" class="font-bold text-slate-500 dark:text-slate-500">v--</span></p>
+  </footer>
+</body>
+
+</html>

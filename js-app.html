@@ -1,0 +1,188 @@
+<script>
+  /**
+   * js-app.html - Master Application Orchestration
+   * This is the "brain" of your frontend web app. It coordinates everything: 
+   * initial setup, dark/light theme toggling, language switching, data refreshing, 
+   * filter application, tab navigation, and auto-refresh intervals.
+   */
+  const App = {
+    rawData: null,          // Stores the master dataset fetched from the server
+    autoRefreshTimer: null, // Stores the background timer for automatic data refreshing
+
+    /**
+     * Entry point function. Runs automatically when the webpage finishes loading.
+     */
+    async init() {
+      // 1. Initialize language settings and update UI language buttons
+      this.updateLangButtons(I18n.lang);
+      I18n.setLanguage(I18n.lang);
+
+      // 2. Set up event listeners for filters and auto-refresh
+      Filters.init();
+      this.setupAutoRefresh();
+      
+      // 3. Fetch initial data from the server and render the dashboard
+      await this.refreshData();
+    },
+
+    /**
+     * Toggles between Light Mode and Dark Mode by adding or removing the 'dark' class on the HTML tag.
+     */
+    toggleTheme() {
+      const htmlEl = document.documentElement;
+      if (htmlEl.classList.contains('dark')) {
+        htmlEl.classList.remove('dark');
+      } else {
+        htmlEl.classList.add('dark');
+      }
+      
+      // If data is already loaded, re-apply filters so charts update their colors/gridlines for the new theme
+      if (this.rawData) {
+        this.applyFilters();
+      }
+    },
+
+    /**
+     * Changes the application language (e.g., English vs. Indonesian) and re-renders the dashboard UI.
+     */
+    toggleLanguage(lang) {
+      I18n.setLanguage(lang);
+      this.updateLangButtons(lang);
+      
+      if (this.rawData) {
+        this.applyFilters();
+      }
+    },
+
+    /**
+     * Updates the visual highlight styling of the language switcher buttons based on the active language.
+     */
+    updateLangButtons(lang) {
+      const btnEn = document.getElementById('lang-en');
+      const btnId = document.getElementById('lang-id');
+      
+      if (lang === 'EN-US') {
+        btnEn.className = 'px-2.5 py-1 rounded-lg bg-indigo-600 text-white transition cursor-pointer shadow-sm';
+        btnId.className = 'px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 transition cursor-pointer';
+      } else {
+        btnId.className = 'px-2.5 py-1 rounded-lg bg-indigo-600 text-white transition cursor-pointer shadow-sm';
+        btnEn.className = 'px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 transition cursor-pointer';
+      }
+    },
+
+    /**
+     * Fetches fresh dashboard data from the Google Apps Script backend server 
+     * and updates the loading progress bar along the way.
+     */
+    async refreshData(force = false) {
+      Utils.showLoader();
+      Utils.updateProgress(20);
+
+      try {
+        Utils.updateProgress(50);
+        
+        // Call our API helper to fetch master data from Google Sheets
+        this.rawData = await API.fetchDashboardData();
+        
+        Utils.updateProgress(80);
+        
+        // Dynamically update version numbers across header and footer text elements
+        if (this.rawData.appVersion) {
+          const verBadge = document.getElementById('header-version-badge');
+          const verFooter = document.getElementById('footer-version-text');
+          if (verBadge) verBadge.textContent = this.rawData.appVersion;
+          if (verFooter) verFooter.textContent = this.rawData.appVersion;
+        }
+
+        // Populate location filter dropdown and update the "Last Updated" timestamp text
+        Filters.populateLocationFilter(this.rawData.table1Location);
+        document.getElementById('last-updated-time').textContent = `${I18n.t('lastUpdated')} ${new Date(this.rawData.lastUpdated).toLocaleTimeString()}`;
+        
+        // Apply current filters to render tables, KPIs, and charts
+        this.applyFilters();
+        Utils.updateProgress(100);
+        
+      } catch (err) {
+        alert('Error fetching dashboard data: ' + err.message);
+      } finally {
+        // Ensure the loading overlay hides even if an error occurs
+        Utils.hideLoader();
+      }
+    },
+
+    /**
+     * Takes raw data, applies active filters (dates and locations), 
+     * and updates KPIs, data tables, and charts on the screen.
+     */
+    applyFilters() {
+      if (!this.rawData) return;
+      
+      // Filter the raw dataset using the Filters object helper
+      const filtered = Filters.filterData(this.rawData);
+      
+      // --- Update KPI Summary Cards ---
+      document.getElementById('kpi-inbound-containers').textContent = Utils.formatNumber(filtered.kpis.totalInboundContainers);
+      document.getElementById('kpi-skus-handled').textContent = Utils.formatNumber(filtered.kpis.totalSkusHandled);
+      document.getElementById('kpi-outbound-deliveries').textContent = Utils.formatNumber(filtered.kpis.totalOutboundDeliveries);
+      document.getElementById('kpi-requests').textContent = Utils.formatNumber(filtered.kpis.totalRequests);
+      document.getElementById('kpi-active-locations').textContent = Utils.formatNumber(filtered.kpis.activeLocationsCount);
+
+      // --- Render Outbound Master Table ---
+      Tables.renderOutboundTable(filtered.outboundDetails);
+
+      // --- Render Charts (with a tiny delay to ensure DOM elements are fully visible) ---
+      setTimeout(() => {
+        Charts.renderAll(filtered);
+      }, 50);
+    },
+
+    /**
+     * Handles switching between different view tabs (Dashboard, Inbound, Outbound, Requests).
+     */
+    switchTab(tabName, btnElement) {
+      // 1. Highlight the active button in the navigation bar
+      const buttons = document.querySelectorAll('.nav-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      if (btnElement) {
+        btnElement.classList.add('active');
+      }
+
+      // 2. Hide all view panels
+      const views = ['dashboard', 'inbound', 'outbound', 'requests'];
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        if (el) el.classList.add('hidden');
+      });
+
+      // 3. Show only the targeted view panel
+      const targetView = document.getElementById(`view-${tabName}`);
+      if (targetView) {
+        targetView.classList.remove('hidden');
+      }
+
+      // Smoothly scroll back to the top of the page when changing tabs
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    /**
+     * Sets up the auto-refresh toggle checkbox. When enabled, 
+     * automatically pulls fresh data from the server every 5 minutes.
+     */
+    setupAutoRefresh() {
+      document.getElementById('auto-refresh-toggle').addEventListener('change', (e) => {
+        if (e.target.checked) {
+          // Refresh every 5 minutes (5 minutes * 60 seconds * 1000 milliseconds = 300,000ms)
+          this.autoRefreshTimer = setInterval(() => this.refreshData(true), 5 * 60 * 1000);
+        } else {
+          // Clear the background timer when toggled off
+          clearInterval(this.autoRefreshTimer);
+        }
+      });
+    }
+  };
+
+  /**
+   * Automatically start up the application once the HTML DOM structure is fully loaded in the browser.
+   */
+  document.addEventListener('DOMContentLoaded', () => App.init());
+</script>

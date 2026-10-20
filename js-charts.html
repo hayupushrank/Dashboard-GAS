@@ -1,0 +1,133 @@
+<script>
+  /**
+   * js-charts.html - Executive Zone-Level Charts
+   * This object manages the creation, theme styling, updates, and destruction 
+   * of Chart.js graphs displayed on the dashboard UI.
+   */
+  const Charts = {
+    // An object registry to store active chart instances so we can track and destroy them before re-rendering
+    instances: {},
+
+    /**
+     * Sets global styling defaults for all Chart.js graphs based on 
+     * whether the user's dashboard is in Dark Mode or Light Mode.
+     */
+    initDefaults() {
+      // Check if the root HTML element currently has the 'dark' CSS class applied
+      const isDark = document.documentElement.classList.contains('dark');
+      
+      // Adjust default text color and grid border color depending on the theme
+      Chart.defaults.color = isDark ? '#94a3b8' : '#475569';
+      Chart.defaults.borderColor = isDark ? 'rgba(51, 65, 85, 0.4)' : 'rgba(226, 232, 240, 0.8)';
+      
+      // Set the default font family for all chart labels and tooltips
+      Chart.defaults.font.family = 'Plus Jakarta Sans';
+    },
+
+    /**
+     * Master function that takes filtered dashboard data and renders all charts on the screen.
+     */
+    renderAll(data) {
+      // Apply theme defaults before building the charts
+      this.initDefaults();
+
+      // Use zoneSummary for clean, uncrowded executive bar charts (Zone A, B, C, D, E, F, Staging)
+      const zones = data.zoneSummary || [];
+      
+      // Render Bar Charts for Containers and SKUs grouped by Zone
+      this.renderBarChart('chartContainersByLocation', zones.map(d => d.location), zones.map(d => d.containers), I18n.t('colContainers'), '#6366f1');
+      this.renderBarChart('chartSkusByLocation', zones.map(d => d.location), zones.map(d => d.skus), I18n.t('colSkus'), '#10b981');
+      
+      // Render Single Line Charts for Outbound and Inbound trends over time
+      this.renderLineChart('chartOutboundOverTime', data.table3Outbound.map(d => d.date), data.table3Outbound.map(d => d.deliveries), I18n.t('kpiOutbound'), '#f59e0b');
+      this.renderLineChart('chartInboundSkusOverTime', data.table2Inbound.map(d => d.date), data.table2Inbound.map(d => d.skus), I18n.t('kpiSkus'), '#f43f5e');
+      
+      // Render Multi-Line Chart comparing multiple datasets (Containers vs SKUs) on the same timeline
+      this.renderMultiLineChart('chartRequestsOverTime', data.table4Request.map(d => d.date), [
+        { label: I18n.t('colContainers'), data: data.table4Request.map(d => d.containers), borderColor: '#06b6d4' },
+        { label: I18n.t('colSkus'), data: data.table4Request.map(d => d.skus), borderColor: '#10b981' }
+      ]);
+
+      // Render Donut Chart showing the overall distribution of containers across locations/zones
+      this.renderDonutChart('chartLocationDistribution', zones.map(d => d.location), zones.map(d => d.containers));
+    },
+
+    /**
+     * Checks if a chart already exists for a specific HTML canvas ID. 
+     * If it does, destroys it to prevent canvas overlap glitches and memory leaks.
+     */
+    destroyExisting(id) {
+      if (this.instances[id]) {
+        this.instances[id].destroy();
+      }
+    },
+
+    /**
+     * Helper to build and render a vertical Bar Chart.
+     */
+    renderBarChart(id, labels, values, label, color) {
+      this.destroyExisting(id); // Clear out any old chart first
+      const ctx = document.getElementById(id).getContext('2d');
+      
+      this.instances[id] = new Chart(ctx, {
+        type: 'bar',
+        data: { 
+          labels: labels, 
+          datasets: [{ label: label, data: values, backgroundColor: color, borderRadius: 8, barThickness: 'flex', maxBarThickness: 45 }] 
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    },
+
+    /**
+     * Helper to build and render a trend Line Chart with a semi-transparent area fill underneath.
+     */
+    renderLineChart(id, labels, values, label, color) {
+      this.destroyExisting(id);
+      const ctx = document.getElementById(id).getContext('2d');
+      
+      this.instances[id] = new Chart(ctx, {
+        type: 'line',
+        data: { 
+          labels: labels, 
+          datasets: [{ label: label, data: values, borderColor: color, backgroundColor: color + '20', fill: true, tension: 0.3 }] 
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    },
+
+    /**
+     * Helper to build and render a Multi-Line Chart comparing two or more metrics side-by-side.
+     */
+    renderMultiLineChart(id, labels, datasets) {
+      this.destroyExisting(id);
+      const ctx = document.getElementById(id).getContext('2d');
+      
+      this.instances[id] = new Chart(ctx, {
+        type: 'line',
+        data: { 
+          labels: labels, 
+          datasets: datasets.map(d => ({ ...d, fill: false, tension: 0.3 })) 
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    },
+
+    /**
+     * Helper to build and render a Donut Chart showing proportions of a whole.
+     */
+    renderDonutChart(id, labels, values) {
+      this.destroyExisting(id);
+      const ctx = document.getElementById(id).getContext('2d');
+      
+      this.instances[id] = new Chart(ctx, {
+        type: 'doughnut',
+        data: { 
+          labels: labels, 
+          datasets: [{ data: values, backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a855f7', '#06b6d4'], borderWidth: 0 }] 
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+  };
+</script>

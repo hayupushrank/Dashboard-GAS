@@ -1,0 +1,102 @@
+<script>
+  /**
+   * js-filters.html - Dynamic Date and Location Filtering for Dashboard Tables & Charts
+   * This object manages user interactions with filter controls (dropdowns and date pickers) 
+   * and dynamically slices raw dataset records to match user selections instantly.
+   */
+  const Filters = {
+    
+    /**
+     * Initializes event listeners on filter elements.
+     * Hooks up the start date, end date, and location dropdown to trigger filter updates when changed.
+     */
+    init() {
+      // When the start date changes, wait 300ms (via debounce) before applying filters to avoid lag while picking dates
+      document.getElementById('start-date').addEventListener('change', Utils.debounce(() => App.applyFilters(), 300));
+      
+      // When the end date changes, also debounce the application call
+      document.getElementById('end-date').addEventListener('change', Utils.debounce(() => App.applyFilters(), 300));
+      
+      // When the location dropdown changes, update the filters instantly (no debounce needed for dropdown clicks)
+      document.getElementById('location-filter').addEventListener('change', () => App.applyFilters());
+    },
+    
+    /**
+     * Dynamically populates the location dropdown menu with unique location options.
+     */
+    populateLocationFilter(locations) {
+      const select = document.getElementById('location-filter');
+      
+      // Reset the dropdown with a default "All Locations" option (using translation helper I18n)
+      select.innerHTML = `<option value="ALL">${I18n.t('allLocations')}</option>`;
+      
+      // Loop through each location item and create a new <option> element for it
+      locations.forEach(loc => {
+        const opt = document.createElement('option');
+        opt.value = loc.location;
+        opt.textContent = loc.location;
+        select.appendChild(opt);
+      });
+    },
+
+    /**
+     * Takes the master raw dataset and filters every sub-table based on 
+     * the current values selected in the date inputs and location dropdown.
+     */
+    filterData(rawData) {
+      // Read current values from the filter form controls
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+      const selectedLoc = document.getElementById('location-filter').value;
+
+      // --- Filter Table 1 & Zone Summary (Location-based) ---
+      let filteredTable1 = rawData.table1Location || [];
+      if (selectedLoc !== 'ALL') {
+        // Keep only items where the location matches the user's dropdown selection
+        filteredTable1 = filteredTable1.filter(item => item.location === selectedLoc);
+      }
+
+      let zoneSummary = rawData.zoneSummary || [];
+
+      // --- Filter Table 2: Inbound Metrics (Date range) ---
+      let filteredTable2 = rawData.table2Inbound || [];
+      if (startDate) filteredTable2 = filteredTable2.filter(i => i.date >= startDate);
+      if (endDate) filteredTable2 = filteredTable2.filter(i => i.date <= endDate);
+
+      // --- Filter Table 3: Outbound Summary Chart Table (Date range) ---
+      let filteredTable3 = rawData.table3Outbound || [];
+      if (startDate) filteredTable3 = filteredTable3.filter(i => i.date >= startDate);
+      if (endDate) filteredTable3 = filteredTable3.filter(i => i.date <= endDate);
+
+      // --- Filter Table 4: Request Metrics (Date range) ---
+      let filteredTable4 = rawData.table4Request || [];
+      if (startDate) filteredTable4 = filteredTable4.filter(i => i.date >= startDate);
+      if (endDate) filteredTable4 = filteredTable4.filter(i => i.date <= endDate);
+
+      // --- Filter Raw Outbound Detail Records for the Master Table (Date range) ---
+      let filteredOutboundDetails = rawData.outboundDetails || [];
+      if (startDate) filteredOutboundDetails = filteredOutboundDetails.filter(i => i.date >= startDate);
+      if (endDate) filteredOutboundDetails = filteredOutboundDetails.filter(i => i.date <= endDate);
+
+      // --- Recalculate KPIs based on the newly filtered subset of data ---
+      const dynamicKpis = {
+        totalInboundContainers: filteredTable2.length,
+        totalSkusHandled: filteredTable2.reduce((sum, item) => sum + (item.skus || 0), 0),
+        totalOutboundDeliveries: filteredOutboundDetails.length,
+        totalRequests: filteredTable4.reduce((sum, item) => sum + (item.containers || 0), 0),
+        activeLocationsCount: filteredTable1.length
+      };
+
+      // Return a brand-new filtered dataset object to be rendered onto the screen
+      return {
+        kpis: dynamicKpis,
+        table1Location: filteredTable1,
+        zoneSummary: zoneSummary,
+        table2Inbound: filteredTable2,
+        table3Outbound: filteredTable3,
+        table4Request: filteredTable4,
+        outboundDetails: filteredOutboundDetails // Filtered list passed to the master table
+      };
+    }
+  };
+</script>

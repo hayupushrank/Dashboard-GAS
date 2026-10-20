@@ -1,0 +1,149 @@
+<script>
+  /**
+   * js-i18n.html - Internationalization (EN-US / ID-ID) Dictionaries
+   */
+  const I18n = {
+    lang: 'ID-ID', // Default language
+
+    translations: {
+      'EN-US': {
+        appTitle: 'CJ Kalijati Warehouse Dashboard',
+        liveTag: 'LIVE',
+        lastUpdated: 'Last updated:',
+        autoRefresh: 'Auto-refresh',
+        refreshBtn: 'Refresh',
+        
+        // Filters
+        startDate: 'Start Date',
+        endDate: 'End Date',
+        locationFilter: 'Location Filter',
+        allLocations: 'All Storage Locations',
+        liveSync: 'Live Sync Active',
+
+        // KPIs
+        kpiInbound: 'Inbound Containers',
+        kpiSkus: 'Total SKUs Handled',
+        kpiOutbound: 'Outbound Deliveries',
+        kpiRequests: 'Total Requests',
+        kpiLocations: 'Active Locations',
+        flowInbound: '↑ Active Inbound Flow',
+        flowVariety: '• Storage Variety',
+        flowDispatched: '→ Dispatched Orders',
+        flowInternal: '• Internal Demands',
+        flowUtilization: '✓ Utilization Rate',
+
+        // Chart Titles
+        chartInboundLoc: 'Inbound Containers by Location',
+        chartSkuLoc: 'SKU Count by Location',
+        chartOutboundTime: 'Outbound Delivery Orders Over Time',
+        chartInboundSkuTime: 'Inbound SKU Count Over Time',
+        chartRequestsTime: 'Request Containers & SKUs Over Time',
+        chartLocDist: 'Container Distribution Across Top Locations',
+
+        // Table
+        tableTitle: 'Location Summary Master Table',
+        tableSub: 'Comprehensive storage & stock unit breakdown',
+        exportCsv: 'Export CSV',
+        colLoc: 'Location ID',
+        colContainers: 'Container Count',
+        colSkus: 'SKU Count',
+        showingEntries: 'Showing {start} to {end} of {total} entries',
+        showingZero: 'Showing 0 entries',
+        noData: 'No data available',
+        page: 'Page',
+        prev: 'Previous',
+        next: 'Next',
+        outboundTableTitle: 'Master Outbound Deliveries',
+  outboundTableSub: 'Real-time unique delivery orders, truck numbers, and status',
+  colDate: 'Date',
+  colDO: 'Delivery Order',
+  colTruck: 'Truck Number',
+  colStatus: 'Status',
+
+        // Bottom Nav
+        navOverview: 'Overview',
+        navInbound: 'Inbound',
+        navOutbound: 'Outbound',
+        navRequests: 'Requests',
+        loadingText: 'Loading Warehouse Metrics...'
+      },
+      'ID-ID': {
+        appTitle: 'Dashboard CJ Logistik',
+        liveTag: 'LIVE',
+        lastUpdated: 'Terakhir diperbarui:',
+        autoRefresh: 'Pembaruan Otomatis',
+        refreshBtn: 'Perbarui',
+        
+        // Filters
+        startDate: 'Tanggal Mulai',
+        endDate: 'Tanggal Selesai',
+        locationFilter: 'Filter Lokasi',
+        allLocations: 'Semua Lokasi Penyimpanan',
+        liveSync: 'Sinkronisasi Langsung Aktif',
+
+        // KPIs
+        kpiInbound: 'Kontainer Masuk',
+        kpiSkus: 'Total SKU Dikelola',
+        kpiOutbound: 'Pengiriman Keluar',
+        kpiRequests: 'Total Permintaan',
+        kpiLocations: 'Lokasi Aktif',
+        flowInbound: '↑ Alur Masuk Aktif',
+        flowVariety: '• Variasi Penyimpanan',
+        flowDispatched: '→ Pesanan Dikirim',
+        flowInternal: '• Permintaan Internal',
+        flowUtilization: '✓ Tingkat Penggunaan',
+
+        // Chart Titles
+        chartInboundLoc: 'Kontainer Masuk Berdasarkan Lokasi',
+        chartSkuLoc: 'Jumlah SKU Berdasarkan Lokasi',
+        chartOutboundTime: 'Pesanan Pengiriman Keluar Menurut Waktu',
+        chartInboundSkuTime: 'Jumlah SKU Masuk Menurut Waktu',
+        chartRequestsTime: 'Kontainer & SKU Permintaan Menurut Waktu',
+        chartLocDist: 'Distribus Kontainer di Lokasi Teratas',
+
+        // Table
+        tableTitle: 'Tabel Utama Ringkasan Lokasi',
+        tableSub: 'Rincian unit stok & penyimpanan komprehensif',
+        exportCsv: 'Ekspor CSV',
+        colLoc: 'ID Lokasi',
+        colContainers: 'Jumlah Kontainer',
+        colSkus: 'Jumlah SKU',
+        showingEntries: 'Menampilkan {start} sampai {end} dari {total} data',
+        showingZero: 'Menampilkan 0 data',
+        noData: 'Data tidak tersedia',
+        page: 'Halaman',
+        prev: 'Sebelumnya',
+        next: 'Selanjutnya',
+        outboundTableTitle: 'Tabel Utama Pengiriman Keluar',
+  outboundTableSub: 'Surat jalan unik, nomor truk, dan status secara real-time',
+  colDate: 'Tanggal',
+  colDO: 'Surat Jalan (DO)',
+  colTruck: 'Nomor Truk',
+  colStatus: 'Status',
+
+        // Bottom Nav
+        navOverview: 'Ringkasan',
+        navInbound: 'Masuk',
+        navOutbound: 'Keluar',
+        navRequests: 'Permintaan',
+        loadingText: 'Memuat Metrik Gudang...'
+      }
+    },
+
+    t(key) {
+      return (this.translations[this.lang] && this.translations[this.lang][key]) || key;
+    },
+
+    setLanguage(lang) {
+      this.lang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        el.textContent = this.t(k);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const k = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = this.t(k);
+      });
+    }
+  };
+</script>

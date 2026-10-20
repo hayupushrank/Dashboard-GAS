@@ -1,0 +1,128 @@
+<script>
+  /**
+   * js-tables.html - Outbound Data Table Rendering & Pagination
+   * This object manages displaying paginated rows inside data tables, 
+   * handling page navigation clicks (Next/Previous), and exporting data to CSV.
+   */
+  const Tables = {
+    currentPage: 1,    // Tracks which page the user is currently viewing
+    pageSize: 10,      // Number of rows to display per page
+    currentData: [],   // Stores the full active dataset currently loaded into the table
+
+    /**
+     * Initializes the table with a new dataset, resets back to page 1, 
+     * and triggers the rendering process.
+     */
+    renderOutboundTable(data) {
+      this.currentData = data || [];
+      this.currentPage = 1;
+      this.updateTable();
+    },
+
+    /**
+     * Slices the master dataset based on the current page, builds HTML table rows, 
+     * inserts them into the DOM, and updates pagination footer buttons/text.
+     */
+    updateTable() {
+      const tbody = document.querySelector('#table-outbound-data tbody');
+      if (!tbody) return;
+      tbody.innerHTML = ''; // Clear out any old rows
+
+      const totalItems = this.currentData.length;
+      const totalPages = Math.ceil(totalItems / this.pageSize) || 1;
+
+      // Ensure currentPage stays within valid boundaries
+      if (this.currentPage > totalPages) this.currentPage = totalPages;
+      if (this.currentPage < 1) this.currentPage = 1;
+
+      // Calculate the starting and ending index for slicing the array
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = Math.min(startIndex + this.pageSize, totalItems);
+      
+      // Extract only the rows needed for the current page
+      const pageData = this.currentData.slice(startIndex, endIndex);
+
+      // If there's no data, show a friendly "No data found" message
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-400">${I18n.t('noData')}</td></tr>`;
+      } else {
+        // Loop through each row in the current page and build HTML elements
+        pageData.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200">${row.date}</td>
+            <td class="py-3 px-4 text-indigo-600 dark:text-indigo-400 font-bold">${row.deliveryOrder}</td>
+            <td class="py-3 px-4">${row.truckNumber}</td>
+            <td class="py-3 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                ${row.status || 'Delivered'}
+              </span>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Format summary text showing entry ranges (e.g., "Showing 1 to 10 of 45 entries")
+      const infoStr = totalItems > 0 
+        ? I18n.t('showingEntries').replace('{start}', startIndex + 1).replace('{end}', endIndex).replace('{total}', totalItems)
+        : I18n.t('showingZero');
+
+      // Update UI text and enable/disable pagination buttons accordingly
+      document.getElementById('page-info').textContent = infoStr;
+      document.getElementById('current-page-display').textContent = `${I18n.t('page')} ${this.currentPage} / ${totalPages}`;
+      document.getElementById('btn-prev-page').disabled = this.currentPage === 1;
+      document.getElementById('btn-next-page').disabled = this.currentPage === totalPages || totalItems === 0;
+    },
+
+    /**
+     * Advances to the next page of table results.
+     */
+    nextPage() {
+      const totalPages = Math.ceil(this.currentData.length / this.pageSize);
+      if (this.currentPage < totalPages) {
+        this.currentPage++;
+        this.updateTable();
+      }
+    },
+
+    /**
+     * Goes back to the previous page of table results.
+     */
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.updateTable();
+      }
+    },
+
+    /**
+     * Exports an HTML table into a downloadable CSV file format.
+     */
+    exportCSV(tableId, filename) {
+      const table = document.getElementById(tableId);
+      let csv = [];
+      
+      // Loop through all rows of the table
+      for (let row of table.rows) {
+        // Extract text from each cell, replace line breaks, and wrap in quotes
+        let cols = Array.from(row.cells).map(cell => `"${cell.innerText.replace(/\n/g, ' ')}"`);
+        csv.push(cols.join(','));
+      }
+      
+      // Create a virtual file Blob in memory containing the CSV data
+      const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+      
+      // Create a temporary hidden download link element, click it automatically, then remove it
+      const downloadLink = document.createElement('a');
+      downloadLink.download = filename;
+      downloadLink.href = window.URL.createObjectURL(csvFile);
+      downloadLink.style.display = 'none';
+      
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+  };
+</script>

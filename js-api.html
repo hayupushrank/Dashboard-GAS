@@ -1,0 +1,34 @@
+<script>
+  /**
+   * api.js - Wraps google.script.run in Promises
+   * Google Apps Script's built-in communication tool (google.script.run) traditionally uses 
+   * "callbacks" (functions passed inside functions). Wrapping it in a JavaScript Promise 
+   * allows us to write cleaner, more modern asynchronous code (using async/await or .then/.catch).
+   */
+  const API = {
+    
+    /**
+     * Calls the backend server to fetch all dashboard data.
+     * Returns a Promise that resolves with the data on success, or rejects with an error on failure.
+     */
+    fetchDashboardData() {
+      // A Promise is a placeholder for an action that finishes in the future (like waiting for a server response)
+      return new Promise((resolve, reject) => {
+        
+        // google.script.run is the special bridge that lets your browser talk to your Google Apps Script backend
+        google.script.run
+          
+          // If the server function finishes successfully, 'resolve' sends the data back to where it was called
+          .withSuccessHandler(resolve)
+          
+          // If the server encounters an error, 'reject' catches it so you can handle the failure gracefully
+          .withFailureHandler(reject)
+          
+          // The actual server-side function in Code.gs that we want to run
+          .getDashboardData();
+          
+      });
+    }
+    
+  };
+</script>

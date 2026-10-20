@@ -1,0 +1,49 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl shadow-md dark:shadow-xl backdrop-blur-md flex flex-col transition-colors">
+    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+      <span data-i18n="chartInboundLoc">Inbound Containers by Location</span>
+    </h3>
+    <div class="relative h-72 w-full"><canvas id="chartContainersByLocation"></canvas></div>
+  </div>
+
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl shadow-md dark:shadow-xl backdrop-blur-md flex flex-col transition-colors">
+    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+      <span data-i18n="chartSkuLoc">SKU Count by Location</span>
+    </h3>
+    <div class="relative h-72 w-full"><canvas id="chartSkusByLocation"></canvas></div>
+  </div>
+
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl shadow-md dark:shadow-xl backdrop-blur-md flex flex-col transition-colors">
+    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+      <span data-i18n="chartOutboundTime">Outbound Delivery Orders Over Time</span>
+    </h3>
+    <div class="relative h-72 w-full"><canvas id="chartOutboundOverTime"></canvas></div>
+  </div>
+
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl shadow-md dark:shadow-xl backdrop-blur-md flex flex-col transition-colors overflow-hidden">
+    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+      <span data-i18n="chartInboundSkuTime">Inbound SKU Count Over Time</span>
+    </h3>
+    <div class="relative h-72 w-full"><canvas id="chartInboundSkusOverTime"></canvas></div>
+  </div>
+
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl shadow-md dark:shadow-xl backdrop-blur-md flex flex-col transition-colors overflow-hidden">
+    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+      <span data-i18n="chartRequestsTime">Request Containers & SKUs Over Time</span>
+    </h3>
+    <div class="relative h-72 w-full"><canvas id="chartRequestsOverTime"></canvas></div>
+  </div>
+
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl shadow-md dark:shadow-xl backdrop-blur-md flex flex-col transition-colors overflow-hidden">
+    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+      <span data-i18n="chartLocDist">Container Distribution Across Top Locations</span>
+    </h3>
+    <div class="relative h-72 w-full"><canvas id="chartLocationDistribution"></canvas></div>
+  </div>
+</div>

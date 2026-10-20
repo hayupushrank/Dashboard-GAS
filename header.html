@@ -1,0 +1,40 @@
+<header class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-4 sm:p-5 rounded-2xl shadow-md dark:shadow-xl flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 transition-colors">
+  <div class="flex items-center gap-3">
+    <div class="p-2 sm:p-2.5 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-xl shadow-lg shadow-indigo-500/20">
+      <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+    </div>
+    <div>
+      <!-- Responsive heading: text-base on mobile, text-lg on tablets, text-xl on desktop -->
+      <h1 class="text-base sm:text-lg lg:text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
+        <span data-i18n="appTitle">CJ WH Kalijati Dashboard</span>
+        <span id="header-version-badge" class="text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">v--</span>
+      </h1>
+      <p id="last-updated-time" class="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Last updated: Loading...</p>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-2 sm:gap-3 self-end lg:self-auto w-full lg:w-auto justify-between lg:justify-end">
+    
+    <!-- Language Toggle Switch (EN-US / ID-ID) -->
+    <div class="flex items-center bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] sm:text-xs font-bold">
+      <button id="lang-en" onclick="App.toggleLanguage('EN-US')" class="px-2 py-1 rounded-lg text-slate-600 dark:text-slate-400 transition cursor-pointer">EN</button>
+      <button id="lang-id" onclick="App.toggleLanguage('ID-ID')" class="px-2 py-1 rounded-lg text-slate-600 dark:text-slate-400 transition cursor-pointer">ID</button>
+    </div>
+
+    <!-- Dark/Light Mode Switch Button -->
+    <button onclick="App.toggleTheme()" class="p-2 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer" title="Toggle Theme">
+      <svg id="theme-sun" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      <svg id="theme-moon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+    </button>
+
+    <label class="text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-950 px-2.5 sm:px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer">
+      <input type="checkbox" id="auto-refresh-toggle" class="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500">
+      <span data-i18n="autoRefresh">Auto-refresh</span>
+    </label>
+
+    <button class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold px-3.5 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs shadow-md shadow-indigo-600/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5" onclick="App.refreshData(true)">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      <span data-i18n="refreshBtn">Refresh</span>
+    </button>
+  </div>
+</header>
